@@ -22,9 +22,6 @@ type application struct {
 }
 
 func main() {
-
-	//to test if git works
-
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
 	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime)
 
