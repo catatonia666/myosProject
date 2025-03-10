@@ -36,9 +36,9 @@ RUN adduser \
     --uid "${UID}" \
     appuser
 USER appuser
-    
+WORKDIR /app    
 COPY --from=build /bin/server /bin/
-COPY --from=build /app/ui /ui
+COPY --from=build /app/ui /app/ui
 EXPOSE 3000
 
 ENTRYPOINT [ "/bin/server" ]
