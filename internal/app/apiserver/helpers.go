@@ -1,4 +1,4 @@
-package main
+package apiserver
 
 import (
 	"encoding/json"
@@ -17,9 +17,9 @@ import (
 )
 
 // serverError handles some unexpected errors.
-func (app *application) serverError(c *gin.Context, err error) {
+func (s *server) serverError(c *gin.Context, err error) {
 	trace := fmt.Sprintf("%s\n%s", err.Error(), debug.Stack())
-	app.errorLog.Output(2, trace)
+	s.errorLog.Output(2, trace)
 	c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
 		"error":   http.StatusText(http.StatusInternalServerError),
 		"message": "An unexpected error occurred.",
@@ -27,17 +27,17 @@ func (app *application) serverError(c *gin.Context, err error) {
 }
 
 // newTemplateData gathers context data and passes it to every request by default.
-func (app *application) newTemplateData(c *gin.Context) *data {
+func (s *server) newTemplateData(c *gin.Context) *data {
 	return &data{
 		CurrentYear:     time.Now().Year(),
-		Flash:           app.getFlash(c),
-		IsAuthenticated: app.isAuthenticated(c),
-		UserID:          app.getID(c),
+		Flash:           s.getFlash(c),
+		IsAuthenticated: s.isAuthenticated(c),
+		UserID:          s.getID(c),
 	}
 }
 
 // isAuthenticated checks if user is authenticaded or not.
-func (app *application) isAuthenticated(c *gin.Context) bool {
+func (s *server) isAuthenticated(c *gin.Context) bool {
 	getValue, ok := c.Get(isAuthenticatedContextKey)
 	if !ok {
 		return false
@@ -47,18 +47,18 @@ func (app *application) isAuthenticated(c *gin.Context) bool {
 }
 
 // setFlash sets a flash message by putting it into the cookie.
-func (app *application) setFlash(c *gin.Context, flashText string) {
+func (s *server) setFlash(c *gin.Context, flashText string) {
 	sessionID, err := c.Cookie("session_id")
 	if err != nil {
 		c.SetCookie("flash_message", flashText, 5, "/", "", false, true)
 		return
 	}
-	app.redisClient.Set(c, "flash:"+sessionID, flashText, 5*time.Minute)
+	s.redisClient.Set(c, "flash:"+sessionID, flashText, 5*time.Minute)
 }
 
 // getFlash extracts flash from the context. It checks if the flash is in temporary flash_message cookie or inside created session.
 // It checks every request and passes data.
-func (app *application) getFlash(c *gin.Context) string {
+func (s *server) getFlash(c *gin.Context) string {
 	var flashTextTmp string
 
 	//Checking if flash is inside temporary cookie, if so extract it.
@@ -75,30 +75,31 @@ func (app *application) getFlash(c *gin.Context) string {
 	}
 
 	//Trying to gather flash from session.
-	flashSession, err := app.redisClient.Get(c, "flash:"+sessionID).Result()
+	flashSession, err := s.redisClient.Get(c, "flash:"+sessionID).Result()
 	if err == redis.Nil {
 		flashSession = ""
 	} else if err != nil {
 		log.Println("Redis error:", err)
 		flashSession = ""
 	} else {
-		app.redisClient.Del(c, "flash:"+sessionID)
+		s.redisClient.Del(c, "flash:"+sessionID)
 	}
 	return flashSession
 }
 
 // render renders a page from created HTML pages cash.
-func (app *application) render(c *gin.Context, status int, page string, data interface{}) {
-	ts, ok := app.templateCache[page]
+func (s *server) render(c *gin.Context, status int, page string, data interface{}) {
+
+	ts, ok := s.templateCache[page]
 	if !ok {
 		err := fmt.Errorf("the template %s does not exist", page)
-		app.errorLog.Println(err)
+		s.errorLog.Println(err)
 		return
 	}
 	c.Status(status)
 	err := ts.ExecuteTemplate(c.Writer, "base", data)
 	if err != nil {
-		app.errorLog.Println(err)
+		s.errorLog.Println(err)
 		return
 	}
 }
@@ -133,14 +134,14 @@ func deserialize(jsonStr string, target *map[string]any) {
 }
 
 // getID gets user ID from current session.
-func (app *application) getID(c *gin.Context) int {
+func (s *server) getID(c *gin.Context) int {
 	sessionID, err := c.Cookie("session_id")
 	if err != nil {
 		return 0 //If session does not exists returns nil.
 	}
 
 	// Get ID of a user directly from Redis.
-	userIDStr, err := app.redisClient.Get(c, sessionID+":userID").Result()
+	userIDStr, err := s.redisClient.Get(c, sessionID+":userID").Result()
 	if err == redis.Nil {
 		return 0
 	} else if err != nil {
@@ -156,14 +157,15 @@ func (app *application) getID(c *gin.Context) int {
 }
 
 // parse is a helper function to parse forms from the user.
-func (app *application) parse(c *gin.Context, form any) {
+func (s *server) parse(c *gin.Context, form any) {
 	if err := c.Request.ParseForm(); err != nil {
-		app.errorLog.Print(err.Error())
-		app.serverError(c, err)
+		s.errorLog.Print(err.Error())
+		s.serverError(c, err)
 	}
+
 	dec := schema.NewDecoder()
 	if err := dec.Decode(form, c.Request.PostForm); err != nil {
-		app.errorLog.Print(err.Error())
-		app.serverError(c, err)
+		s.errorLog.Print(err.Error())
+		s.serverError(c, err)
 	}
 }

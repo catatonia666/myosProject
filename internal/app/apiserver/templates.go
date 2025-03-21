@@ -1,4 +1,4 @@
-package main
+package apiserver
 
 import (
 	"dialogue/internal/models"
@@ -10,9 +10,9 @@ import (
 // Different data that could be passed into templates.
 type data struct {
 	//Data that gathered from user's forms.
-	StoryForm     StoryForm
-	UserForm      UserForm
-	UserLoginForm UserLoginForm
+	StoryForm     storyForm
+	UserForm      userForm
+	UserLoginForm userLoginForm
 	PasswordForm  accountPasswordUpdateForm
 
 	//Data that gathered from the databases.
@@ -39,6 +39,7 @@ func newTemplateCache() (map[string]*template.Template, error) {
 	if err != nil {
 		panic(err)
 	}
+
 	for _, page := range files {
 		name := filepath.Base(page)
 		ts, err := template.New(name).Funcs(functions).ParseFiles("./ui/html/base.html")

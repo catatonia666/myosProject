@@ -1,0 +1,5 @@
+redis = "redis://:@redis:6379/0"
+
+bind_addr = ":3000"
+
+database_url = "host=db port=5432 user=postgres password=world555 dbname=rpg sslmode=disable"
