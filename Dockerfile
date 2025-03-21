@@ -15,7 +15,7 @@ ARG TARGETARCH
 
 RUN --mount=type=cache,target=/go/pkg/mod/ \
     --mount=type=bind,target=. \
-    CGO_ENABLED=0 GOARCH=$TARGETARCH go build -o /bin/server ./cmd
+    CGO_ENABLED=0 GOARCH=$TARGETARCH go build -o /bin/server ./cmd/apiserver
 
 FROM alpine:latest AS final
 
@@ -39,6 +39,8 @@ USER appuser
 WORKDIR /app    
 COPY --from=build /bin/server /bin/
 COPY --from=build /app/ui /app/ui
+COPY --from=build /app/config /app/config
+COPY --from=build /app/ui/static /app/ui/static
 EXPOSE 3000
 
 ENTRYPOINT [ "/bin/server" ]
