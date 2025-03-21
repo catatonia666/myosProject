@@ -1,1 +1,1 @@
-Project of a site for creating stories and sialogues with multiple choises.
+Project of a site for creating stories and dialogues with multiple choises.
