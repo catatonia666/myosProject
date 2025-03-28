@@ -2,38 +2,44 @@ package models
 
 import (
 	"encoding/json"
+	"time"
 )
 
-type FirstBlock struct {
+type StartingBlock struct {
 	StoryTitle string `gorm:"type:text"`
-	UserID     int
-	ID         int `gorm:"primary_key"`
-	Privacy    bool
 
-	FirstBlockContent string          `gorm:"type:text"`
-	FirstBlockOptions json.RawMessage `gorm:"type:json;default:'{}'"`
+	StoryID int `gorm:"column:id;primary_key"`
+	UserID  int
+	Privacy bool
+
+	Content string          `gorm:"type:text"`
+	Options json.RawMessage `gorm:"type:json;default:'{}'"`
+
+	CreatedAt time.Time
 }
 
-type Block struct {
-	UserID  int
-	StoryID int
+type CommonBlock struct {
 	ID      int `gorm:"primary_key"`
+	StoryID int
+	UserID  int
 
-	BlockContent string          `gorm:"type:text"`
-	BlockOptions json.RawMessage `gorm:"type:json;default:'{}'"`
+	Content string          `gorm:"type:text"`
+	Options json.RawMessage `gorm:"type:json;default:'{}'"`
+
+	CreatedAt time.Time
 }
 
 // DialoguesData is a collection of data that may be passed to templates.
 type DialoguesData struct {
-	FirstBlock      FirstBlock
-	Block           Block
+	StartingBlock   StartingBlock
+	CommonBlock     CommonBlock
 	OptionsToBlocks []map[int]string
 
-	DialoguesToDisplay   []FirstBlock
+	DialoguesToDisplay   []StartingBlock
 	RelatedToStoryBlocks RelatedToStoryBlocks
 }
 
 type RelatedToStoryBlocks struct {
-	FirstBlock  FirstBlock
-	OtherBlocks []Block
+	StartingBlock StartingBlock
+	OtherBlocks   []CommonBlock
 }

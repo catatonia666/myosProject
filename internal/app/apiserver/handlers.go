@@ -57,7 +57,8 @@ func (s *server) homePage(c *gin.Context) {
 
 	//Pass related data and stories and render the page.
 	data := s.newTemplateData(c)
-	data.DataDialogues.DialoguesToDisplay = s.store.Story().Latest(userID)
+	data.DataDialogues.DialoguesToDisplay, _ = s.services.Story().DisplayStories(userID)
+
 	s.render(c, http.StatusOK, "home.html", data)
 }
 
@@ -89,10 +90,10 @@ func (s *server) createFB(c *gin.Context) {
 
 	//Get user ID from context and put gathered data into DB, then get the ID of fresh created first block of the story.
 	userID := s.getID(c)
-	newStoryID := s.store.Story().CreateFB(userID, storyForm.Title, storyForm.Content, optionsSlice, storyForm.Privacy)
+	newStoryID := s.services.Story().Create(userID, storyForm.Title, storyForm.Content, optionsSlice, storyForm.Privacy)
 
 	s.setFlash(c, "First step is done, and the story have been created!")
-	path := "firstblock?id=" + strconv.Itoa(int(newStoryID))
+	path := strconv.Itoa(int(newStoryID))
 	c.Redirect(http.StatusFound, path)
 }
 
@@ -100,7 +101,7 @@ func (s *server) createFB(c *gin.Context) {
 func (s *server) createdFBView(c *gin.Context) {
 
 	//Get the ID of fresh story.
-	storyID, err := strconv.Atoi(c.Request.URL.Query().Get("id"))
+	storyID, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		return
 	}
@@ -115,7 +116,7 @@ func (s *server) createdFBView(c *gin.Context) {
 func (s *server) editFBView(c *gin.Context) {
 
 	//get the ID of the story and data of the first block.
-	storyID, err := strconv.Atoi(c.Request.URL.Query().Get("id"))
+	storyID, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.AbortWithStatus(http.StatusNotFound)
 	}
@@ -135,14 +136,15 @@ func (s *server) editFB(c *gin.Context) {
 	optionsSlice := strings.Split(storyForm.Options, "\r\n")
 
 	//Get ID of the story and update it's data with a new one.
-	storyID, err := strconv.Atoi(c.Request.URL.Query().Get("id"))
+	storyID, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.AbortWithStatus(http.StatusNotFound)
+		return
 	}
 
 	userID := s.getID(c)
-	s.store.Story().EditFB(storyID, userID, storyForm.Title, storyForm.Content, optionsSlice)
-	path := "firstblock?id=" + strconv.Itoa(storyID)
+	s.services.Story().Edit("starting_blocks", storyID, userID, storyForm.Title, storyForm.Content, optionsSlice)
+	path := "/stories/startingblocks/" + strconv.Itoa(storyID)
 	c.Redirect(http.StatusFound, path)
 }
 
@@ -152,7 +154,7 @@ func (s *server) deleteFB(c *gin.Context) {
 	if err != nil {
 		c.AbortWithStatus(http.StatusNotFound)
 	}
-	s.store.Story().DeleteFB(id)
+	s.services.Story().DeleteWholeStory(id)
 	c.Redirect(http.StatusFound, "/home")
 }
 
@@ -160,7 +162,7 @@ func (s *server) deleteFB(c *gin.Context) {
 func (s *server) createdBView(c *gin.Context) {
 
 	//Get ID of a block.
-	blockID, err := strconv.Atoi(c.Request.URL.Query().Get("id"))
+	blockID, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.AbortWithStatus(http.StatusNotFound)
 	}
@@ -175,7 +177,7 @@ func (s *server) createdBView(c *gin.Context) {
 func (s *server) editBView(c *gin.Context) {
 
 	//Get ID of a block.
-	blockID, err := strconv.Atoi(c.Request.URL.Query().Get("id"))
+	blockID, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.AbortWithStatus(http.StatusNotFound)
 	}
@@ -197,30 +199,24 @@ func (s *server) editB(c *gin.Context) {
 	optionsSlice := strings.Split(blockForm.Options, "\r\n")
 
 	//Get ID of the editing block and update it's data with a new one.
-	blockID, err := strconv.Atoi(c.Request.URL.Query().Get("id"))
+	blockID, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.AbortWithStatus(http.StatusNotFound)
 	}
 
 	userID := s.getID(c)
-	s.store.Story().EditB(blockID, userID, blockForm.Title, blockForm.Content, optionsSlice)
-	path := "block?id=" + strconv.Itoa(blockID)
-	c.Redirect(http.StatusFound, path)
-}
-
-// redirectBlock redirects user to a block.
-func (s *server) redirectBlock(c *gin.Context) {
-	path := "block?id=" + strings.ReplaceAll(c.Request.URL.Path, "/", "")
+	s.services.Story().Edit("common_blocks", blockID, userID, blockForm.Title, blockForm.Content, optionsSlice)
+	path := "/stories/blocks/" + strconv.Itoa(blockID)
 	c.Redirect(http.StatusFound, path)
 }
 
 // deleteB deletes a block and other blocks if they are not related to other blocks.
 func (s *server) deleteB(c *gin.Context) {
-	blockID, err := strconv.Atoi(c.Request.URL.Query().Get("id"))
+	blockID, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.AbortWithStatus(http.StatusNotFound)
 	}
-	s.store.Story().DeleteB(blockID)
+	s.services.Story().DeleteOneBlock(blockID)
 	c.Redirect(http.StatusFound, "/home")
 }
 
@@ -297,7 +293,7 @@ func (s *server) userLogin(c *gin.Context) {
 	}
 
 	//Authenticate user and log him in if no errors.
-	user, err := s.store.User().Authenticate(userForm.Email, userForm.Password)
+	user, err := s.services.User().Authenticate(userForm.Email, userForm.Password)
 	if err != nil {
 		if errors.Is(err, models.ErrInvalidCredentials) {
 			userForm.AddNonFieldError("Email or password is incorrect")
@@ -342,7 +338,7 @@ func (s *server) accountView(c *gin.Context) {
 
 	//Get user ID and then other data related to the user.
 	userID := s.getID(c)
-	user, err := s.store.User().GetUser(userID)
+	user, err := s.store.User().Get(userID)
 	if err != nil {
 		if errors.Is(err, models.ErrNoRecord) {
 			c.Redirect(http.StatusFound, "/user/login")
