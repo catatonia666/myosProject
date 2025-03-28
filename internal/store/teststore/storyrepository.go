@@ -5,33 +5,22 @@ import "dialogue/internal/models"
 type StoryRepository struct {
 }
 
-func (sr *StoryRepository) Latest(int) []models.FirstBlock {
-	return nil
-}
+func (sr *StoryRepository) StoriesToDisplay(int, int) ([]models.StartingBlock, error)
 
-func (sr *StoryRepository) CreateFB(int, string, string, []string, bool) int {
-	return 0
-}
+func (sr *StoryRepository) Delete(any) error
 
-func (sr *StoryRepository) CreatedFBView(int) models.DialoguesData {
-	return models.DialoguesData{}
-}
+func (sr *StoryRepository) WholeStory(int) (models.StartingBlock, []models.CommonBlock, error)
 
-func (sr *StoryRepository) EditFB(int, int, string, string, []string) {
+func (sr *StoryRepository) CreatedBlocks(int) ([]models.CommonBlock, error)
 
-}
+func (sr *StoryRepository) Create(any) (int, error)
 
-func (sr *StoryRepository) DeleteFB(int) {
+func (sr *StoryRepository) CreatedFBView(int) models.DialoguesData
 
-}
+func (sr *StoryRepository) DeleteWholeStory(int) error
 
-func (sr *StoryRepository) EditBView(int) models.DialoguesData {
-	return models.DialoguesData{}
-}
-func (sr *StoryRepository) EditB(int, int, string, string, []string) {
+func (sr *StoryRepository) EditBView(int) models.DialoguesData
 
-}
+func (sr *StoryRepository) Update(id int, data any) error
 
-func (sr *StoryRepository) DeleteB(int) {
-
-}
+func (sr *StoryRepository) Get(model string, id int) (any, error)

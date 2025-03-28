@@ -4,7 +4,7 @@
 <form class="form" method="post">
     <div class="container">
         <div class="content-options-field">
-            <textarea name="content" id="content" placeholder="Write your story">{{.DataDialogues.Block.BlockContent}}</textarea>
+            <textarea name="content" id="content" placeholder="Write your story">{{.DataDialogues.CommonBlock.Content}}</textarea>
         </div>
         <div class="content-options-field options-field">
             <textarea name="options" id="options" placeholder="Write options">{{range .DataDialogues.OptionsToBlocks}}{{range $key, $value := .}}change {{$key}} {{$value}}&#10;{{end}}{{end}}</textarea>

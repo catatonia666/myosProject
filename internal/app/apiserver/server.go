@@ -1,6 +1,7 @@
 package apiserver
 
 import (
+	"dialogue/internal/services"
 	"dialogue/internal/store"
 	"html/template"
 	"log"
@@ -16,12 +17,15 @@ type server struct {
 	router        *gin.Engine
 	errorLog      *log.Logger
 	templateCache map[string]*template.Template
+
+	services services.Service
 }
 
 func newServer(store store.Store, redisClient *redis.Client) *server {
 	s := &server{
 		store:       store,
 		redisClient: redisClient,
+		services:    services.New(store),
 	}
 
 	s.configureRouter()
@@ -51,18 +55,17 @@ func (s *server) configureRouter() *gin.Engine {
 	s.router.GET("/home", s.homePage)
 	s.router.GET("/about", s.about)
 
-	s.router.GET("/newfirstblock", s.emptyFBView)
-	s.router.POST("/newfirstblock", s.createFB)
-	s.router.GET("/firstblock", s.createdFBView)
-	s.router.POST("/firstblock", s.deleteFB)
-	s.router.GET("/editfirstblock", s.editFBView)
-	s.router.POST("/editfirstblock", s.editFB)
+	s.router.GET("/stories/startingblocks/new", s.emptyFBView)
+	s.router.POST("/stories/startingblocks/new", s.createFB)
+	s.router.GET("/stories/startingblocks/:id", s.createdFBView)
+	s.router.GET("/stories/startingblocks/:id/edit", s.editFBView)
+	s.router.POST("/stories/startingblocks/:id/edit", s.editFB)
+	s.router.DELETE("/stories/startingblocks/:id", s.deleteFB)
 
-	s.router.GET("/block", s.createdBView)
-	s.router.POST("/block", s.deleteB)
-	s.router.GET("/editblock", s.editBView)
-	s.router.POST("/editblock", s.editB)
-	s.router.GET("/{digits:[0-9]+}", s.redirectBlock)
+	s.router.GET("/stories/blocks/:id", s.createdBView)
+	s.router.GET("/stories/blocks/:id/edit", s.editBView)
+	s.router.POST("/stories/blocks/:id/edit", s.editB)
+	s.router.DELETE("/stories/blocks/:id", s.deleteB)
 
 	s.router.GET("/user/signup", s.userSignupView)
 	s.router.POST("/user/signup", s.userSignup)

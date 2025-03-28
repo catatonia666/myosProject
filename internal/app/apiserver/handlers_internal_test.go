@@ -53,9 +53,8 @@ func TestHandler_Home(t *testing.T) {
 
 func TestHandler_UserSignup(t *testing.T) {
 	os.Chdir("../../..")
-	newCash, _ := newCash("redis://:@localhost:6379/0")
 	store := teststore.New()
-	s := newServer(store, newCash)
+	s := newServer(store, nil)
 
 	existingUser := &models.User{
 		Nickname: "example",

@@ -22,7 +22,7 @@ func (ur *UserRepository) Create(u *models.User) error {
 	return nil
 }
 
-func (ur *UserRepository) Find(id int) (*models.User, error) {
+func (ur *UserRepository) Get(id int) (*models.User, error) {
 
 	u, ok := ur.users[id]
 	if !ok {
@@ -43,10 +43,6 @@ func (ur *UserRepository) FindByEmail(email string) (*models.User, error) {
 }
 
 func (ur *UserRepository) Authenticate(string, string) (*models.User, error) {
-	return nil, nil
-}
-
-func (ur *UserRepository) GetUser(int) (*models.User, error) {
 	return nil, nil
 }
 
