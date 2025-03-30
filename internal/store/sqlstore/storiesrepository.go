@@ -2,7 +2,6 @@ package sqlstore
 
 import (
 	"dialogue/internal/models"
-	"encoding/json"
 )
 
 type StoryRepository struct {
@@ -103,42 +102,21 @@ func (sr *StoryRepository) CreatedBlocks(blocksAmount int) (retrievedBlocks []mo
 
 // WholeStory collects all blocks related to the story with ID including the starting one.
 func (sr *StoryRepository) WholeStory(storyID int) (story models.StartingBlock, blocks []models.CommonBlock, err error) {
+	err = sr.store.db.Where("id = ?", storyID).First(&story).Error
+	if err != nil {
+		return models.StartingBlock{}, nil, err
+	}
+
 	err = sr.store.db.Where("story_id = ?", storyID).Order("id").Find(&blocks).Error
 	if err != nil {
 		return models.StartingBlock{}, nil, err
 	}
 
-	err = sr.store.db.Where("id = ?", storyID).First(&story).Error
-	if err != nil {
-		return models.StartingBlock{}, nil, err
-	}
 	return story, blocks, nil
 }
 
-func (sr *StoryRepository) CreatedFBView(id int) (data models.DialoguesData) {
-	var (
-		firstBlock models.StartingBlock
-		options    []map[int]string
-	)
-	sr.store.db.First(&firstBlock, id)
-	json.Unmarshal(firstBlock.Options, &options)
-	data.StartingBlock = firstBlock
-	data.OptionsToBlocks = options
-	data.RelatedToStoryBlocks, _ = sr.retrieveBlocks(id)
-	return data
-}
-
-func (sr *StoryRepository) EditBView(id int) (data models.DialoguesData) {
-	sr.store.db.First(&data.CommonBlock, id)
-	var result []map[int]string
-	json.Unmarshal(data.CommonBlock.Options, &result)
-	data.OptionsToBlocks = result
-	data.RelatedToStoryBlocks, _ = sr.retrieveBlocks(data.CommonBlock.StoryID)
-	return data
-}
-
-// retrieveBlocks is a helper that converts blocks collected with WholeStory method into one struct.
-func (sr *StoryRepository) retrieveBlocks(id int) (retrievedBlocks models.RelatedToStoryBlocks, err error) {
+// RetrieveBlocks is a helper that converts blocks collected with WholeStory method into one struct.
+func (sr *StoryRepository) RetrieveBlocks(id int) (retrievedBlocks models.RelatedToStoryBlocks, err error) {
 	firstBlock, blocks, err := sr.WholeStory(id)
 	if err != nil {
 		return models.RelatedToStoryBlocks{}, err

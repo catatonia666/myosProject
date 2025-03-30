@@ -55,30 +55,29 @@ func (s *server) configureRouter() *gin.Engine {
 	s.router.GET("/home", s.homePage)
 	s.router.GET("/about", s.about)
 
-	s.router.GET("/stories/startingblocks/new", s.emptyFBView)
-	s.router.POST("/stories/startingblocks/new", s.createFB)
-	s.router.GET("/stories/startingblocks/:id", s.createdFBView)
-	s.router.GET("/stories/startingblocks/:id/edit", s.editFBView)
-	s.router.POST("/stories/startingblocks/:id/edit", s.editFB)
-	s.router.DELETE("/stories/startingblocks/:id", s.deleteFB)
+	s.router.GET("/stories/startingblocks/new", s.startingBlockForm)
+	s.router.POST("/stories/startingblocks/new", s.startingBlockCreate)
+	s.router.GET("/stories/startingblocks/:id", s.startingBlockRender)
+	s.router.POST("/stories/startingblocks/:id", s.deleteWholeStory) //delete
+	s.router.GET("/stories/startingblocks/:id/edit", s.startingBlockEditionForm)
+	s.router.POST("/stories/startingblocks/:id/edit", s.startingBlockEdit) //patch
 
-	s.router.GET("/stories/blocks/:id", s.createdBView)
-	s.router.GET("/stories/blocks/:id/edit", s.editBView)
-	s.router.POST("/stories/blocks/:id/edit", s.editB)
-	s.router.DELETE("/stories/blocks/:id", s.deleteB)
+	s.router.GET("/stories/blocks/:id", s.blockRender)
+	s.router.POST("/stories/blocks/:id", s.deleteBlock) //delete
+	s.router.GET("/stories/blocks/:id/edit", s.blockEditionForm)
+	s.router.POST("/stories/blocks/:id/edit", s.blockEdit) //patch
 
-	s.router.GET("/user/signup", s.userSignupView)
+	s.router.GET("/user/signup", s.userSignupForm)
 	s.router.POST("/user/signup", s.userSignup)
 
-	s.router.GET("/user/login", s.userLoginView)
+	s.router.GET("/user/login", s.userLoginForm)
 	s.router.POST("/user/login", s.userLogin)
 	s.router.POST("/user/logout", s.userLogout)
 
-	s.router.GET("/account/view", s.accountView)
+	s.router.GET("/account/view", s.userAccountRender)
 
-	s.router.GET("/account/password/update", s.passwordUpdateView)
-	s.router.POST("/account/password/update", s.passwordUpdate)
-
+	s.router.GET("/account/password/update", s.passwordEditionForm)
+	s.router.POST("/account/password/update", s.passwordUpdate) //patch
 	return s.router
 }
 

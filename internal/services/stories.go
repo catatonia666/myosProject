@@ -19,6 +19,8 @@ type StoryService interface {
 	DeleteOneBlock(id int) error
 	DeleteWholeStory(id int) error
 	DisplayStories(int) ([]models.StartingBlock, error)
+	StartingBlockData(id int) (data models.DialoguesData)
+	BlockData(id int) (data models.DialoguesData)
 }
 
 const storiesToDisplayAmount = 10
@@ -141,6 +143,38 @@ func (ss *StoryStruct) DisplayStories(userID int) (storiesToDisplay []models.Sta
 		return nil, err
 	}
 	return storiesToDisplay, nil
+}
+
+func (ss *StoryStruct) StartingBlockData(id int) (data models.DialoguesData) {
+	var (
+		firstBlock models.StartingBlock
+		options    []map[int]string
+	)
+	firstBlockAny, _ := ss.db.Story().Get("starting_blocks", id)
+	firstBlock = firstBlockAny.(models.StartingBlock)
+	json.Unmarshal(firstBlock.Options, &options)
+	data.StartingBlock = firstBlock
+	data.OptionsToBlocks = options
+
+	data.RelatedToStoryBlocks, _ = ss.db.Story().RetrieveBlocks(id)
+
+	return data
+}
+
+func (ss *StoryStruct) BlockData(id int) (data models.DialoguesData) {
+	var (
+		block   models.CommonBlock
+		options []map[int]string
+	)
+	blockAny, _ := ss.db.Story().Get("common_blocks", id)
+	block = blockAny.(models.CommonBlock)
+	json.Unmarshal(block.Options, &options)
+	data.CommonBlock = block
+	data.OptionsToBlocks = options
+
+	data.RelatedToStoryBlocks, _ = ss.db.Story().RetrieveBlocks(block.StoryID)
+
+	return data
 }
 
 // recreateOptions recreating options of the starting (first) block or other blocks of the story.

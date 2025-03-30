@@ -342,7 +342,7 @@ footer {
     padding: 10px;
     font-family: Arial, sans-serif;
     background-color: #f0f0f0;
-    overflow: hidden; 
+    overflow: auto; 
     display: flex;
 }
 

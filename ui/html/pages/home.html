@@ -11,7 +11,7 @@
     </tr>
     {{range .DataDialogues.DialoguesToDisplay}}
     <tr>
-        <td><a href='/startingblocks?id={{.StoryID}}'>{{.StoryTitle}}</a></td>
+        <td><a href='/stories/startingblocks/{{.StoryID}}'>{{.StoryTitle}}</a></td>
         <td>{{humanTime .CreatedAt}}</td>
         <td>#{{.StoryID}}</td>
     </tr>

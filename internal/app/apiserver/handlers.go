@@ -58,19 +58,18 @@ func (s *server) homePage(c *gin.Context) {
 	//Pass related data and stories and render the page.
 	data := s.newTemplateData(c)
 	data.DataDialogues.DialoguesToDisplay, _ = s.services.Story().DisplayStories(userID)
-
 	s.render(c, http.StatusOK, "home.html", data)
 }
 
 // emptyFBView renders an empty form where user can create a starting point of a new story.
-func (s *server) emptyFBView(c *gin.Context) {
+func (s *server) startingBlockForm(c *gin.Context) {
 	data := s.newTemplateData(c)
 	s.render(c, http.StatusOK, "createFB.html", data)
 }
 
 // createFB method parse form, get the values from it and create first block of the story.
 // The first block has it's unique ID, and it is equal to the ID of the story itself.
-func (s *server) createFB(c *gin.Context) {
+func (s *server) startingBlockCreate(c *gin.Context) {
 
 	//Get values from the form and store them into form variable.
 	var storyForm storyForm
@@ -98,7 +97,7 @@ func (s *server) createFB(c *gin.Context) {
 }
 
 // createdFBView renders view of fresh created story with nessessary data.
-func (s *server) createdFBView(c *gin.Context) {
+func (s *server) startingBlockRender(c *gin.Context) {
 
 	//Get the ID of fresh story.
 	storyID, err := strconv.Atoi(c.Param("id"))
@@ -108,12 +107,12 @@ func (s *server) createdFBView(c *gin.Context) {
 
 	//Get the data related to the story with ID and pass it to the view.
 	data := s.newTemplateData(c)
-	data.DataDialogues = s.store.Story().CreatedFBView(storyID)
+	data.DataDialogues = s.services.Story().StartingBlockData(storyID)
 	s.render(c, http.StatusOK, "renderFB.html", data)
 }
 
 // editFBView allows to edit first block of the story.
-func (s *server) editFBView(c *gin.Context) {
+func (s *server) startingBlockEditionForm(c *gin.Context) {
 
 	//get the ID of the story and data of the first block.
 	storyID, err := strconv.Atoi(c.Param("id"))
@@ -123,12 +122,12 @@ func (s *server) editFBView(c *gin.Context) {
 
 	// Render the form for editing with existing data.
 	data := s.newTemplateData(c)
-	data.DataDialogues = s.store.Story().CreatedFBView(storyID)
+	data.DataDialogues = s.services.Story().StartingBlockData(storyID)
 	s.render(c, http.StatusOK, "editFB.html", data)
 }
 
 // editFB passes edited data to the data base.
-func (s *server) editFB(c *gin.Context) {
+func (s *server) startingBlockEdit(c *gin.Context) {
 
 	//Parse edited data for the first block of a story.
 	var storyForm storyForm
@@ -149,8 +148,8 @@ func (s *server) editFB(c *gin.Context) {
 }
 
 // deleteFB deletes the whole story and all blocks related to it.
-func (s *server) deleteFB(c *gin.Context) {
-	id, err := strconv.Atoi(c.Request.URL.Query().Get("id"))
+func (s *server) deleteWholeStory(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.AbortWithStatus(http.StatusNotFound)
 	}
@@ -159,7 +158,7 @@ func (s *server) deleteFB(c *gin.Context) {
 }
 
 // createdBView renders existing block of a story.
-func (s *server) createdBView(c *gin.Context) {
+func (s *server) blockRender(c *gin.Context) {
 
 	//Get ID of a block.
 	blockID, err := strconv.Atoi(c.Param("id"))
@@ -169,12 +168,12 @@ func (s *server) createdBView(c *gin.Context) {
 
 	//Retrieve data from database and render the block.
 	data := s.newTemplateData(c)
-	data.DataDialogues = s.store.Story().EditBView(blockID)
+	data.DataDialogues = s.services.Story().BlockData(blockID)
 	s.render(c, http.StatusOK, "renderB.html", data)
 }
 
 // editBView allows to edit block of the story.
-func (s *server) editBView(c *gin.Context) {
+func (s *server) blockEditionForm(c *gin.Context) {
 
 	//Get ID of a block.
 	blockID, err := strconv.Atoi(c.Param("id"))
@@ -184,12 +183,12 @@ func (s *server) editBView(c *gin.Context) {
 
 	// Render the form for editing with existing data.
 	data := s.newTemplateData(c)
-	data.DataDialogues = s.store.Story().EditBView(blockID)
+	data.DataDialogues = s.services.Story().BlockData(blockID)
 	s.render(c, http.StatusOK, "editB.html", data)
 }
 
 // editFB passes edited data to the data base.
-func (s *server) editB(c *gin.Context) {
+func (s *server) blockEdit(c *gin.Context) {
 
 	//Parse form and store it.
 	var blockForm storyForm
@@ -211,7 +210,7 @@ func (s *server) editB(c *gin.Context) {
 }
 
 // deleteB deletes a block and other blocks if they are not related to other blocks.
-func (s *server) deleteB(c *gin.Context) {
+func (s *server) deleteBlock(c *gin.Context) {
 	blockID, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.AbortWithStatus(http.StatusNotFound)
@@ -221,7 +220,7 @@ func (s *server) deleteB(c *gin.Context) {
 }
 
 // userSignupView renders the page for signing user up.
-func (s *server) userSignupView(c *gin.Context) {
+func (s *server) userSignupForm(c *gin.Context) {
 	data := s.newTemplateData(c)
 	s.render(c, http.StatusOK, "signup.html", data)
 }
@@ -271,7 +270,7 @@ func (s *server) userSignup(c *gin.Context) {
 }
 
 // userLoginView renders the page for logging user in.
-func (s *server) userLoginView(c *gin.Context) {
+func (s *server) userLoginForm(c *gin.Context) {
 	data := s.newTemplateData(c)
 	s.render(c, http.StatusOK, "login.html", data)
 }
@@ -334,7 +333,7 @@ func (s *server) userLogout(c *gin.Context) {
 }
 
 // accountView renders a page with data related to the user (nickname and other).
-func (s *server) accountView(c *gin.Context) {
+func (s *server) userAccountRender(c *gin.Context) {
 
 	//Get user ID and then other data related to the user.
 	userID := s.getID(c)
@@ -355,7 +354,7 @@ func (s *server) accountView(c *gin.Context) {
 }
 
 // passwordUpdateView renders a page where user can change the password for the account.
-func (s *server) passwordUpdateView(c *gin.Context) {
+func (s *server) passwordEditionForm(c *gin.Context) {
 	data := s.newTemplateData(c)
 	data.PasswordForm = accountPasswordUpdateForm{}
 	s.render(c, http.StatusOK, "password.html", data)

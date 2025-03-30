@@ -21,6 +21,5 @@ type StoryRepository interface {
 	CreatedBlocks(int) ([]models.CommonBlock, error)
 	WholeStory(int) (models.StartingBlock, []models.CommonBlock, error)
 
-	CreatedFBView(int) models.DialoguesData
-	EditBView(int) models.DialoguesData
+	RetrieveBlocks(id int) (retrievedBlocks models.RelatedToStoryBlocks, err error)
 }
