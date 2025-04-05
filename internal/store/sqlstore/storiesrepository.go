@@ -100,6 +100,7 @@ func (sr *StoryRepository) CreatedBlocks(blocksAmount int) (retrievedBlocks []mo
 	return retrievedBlocks, nil
 }
 
+// GetAllStories gets all non-private stories.
 func (sr *StoryRepository) GetAllStories() (stories []models.StartingBlock, err error) {
 	err = sr.store.db.Model(&models.StartingBlock{}).Where("privacy = false OR").Order("id desc").Scan(&stories).Error
 	if err != nil {
@@ -122,6 +123,5 @@ func (sr *StoryRepository) WholeStory(storyID int) (story models.StartingBlock, 
 
 	wholeStory.StartingBlock = story
 	wholeStory.OtherBlocks = blocks
-
 	return story, blocks, wholeStory, nil
 }

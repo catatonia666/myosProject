@@ -89,7 +89,7 @@ func (s *server) startingBlockCreate(c *gin.Context) {
 
 	//Get user ID from context and put gathered data into DB, then get the ID of fresh created first block of the story.
 	userID := s.getID(c)
-	newStoryID := s.services.Story().Create(userID, storyForm.Title, storyForm.Content, optionsSlice, storyForm.Privacy)
+	newStoryID := s.services.Story().CreateStory(userID, storyForm.Title, storyForm.Content, optionsSlice, storyForm.Privacy)
 
 	s.setFlash(c, "First step is done, and the story have been created!")
 	path := strconv.Itoa(int(newStoryID))
@@ -142,7 +142,7 @@ func (s *server) startingBlockEdit(c *gin.Context) {
 	}
 
 	userID := s.getID(c)
-	s.services.Story().Edit("starting_blocks", storyID, userID, storyForm.Title, storyForm.Content, optionsSlice)
+	s.services.Story().EditStory("starting_blocks", storyID, userID, storyForm.Title, storyForm.Content, optionsSlice)
 	path := "/stories/startingblocks/" + strconv.Itoa(storyID)
 	c.Redirect(http.StatusFound, path)
 }
@@ -168,7 +168,7 @@ func (s *server) blockRender(c *gin.Context) {
 
 	//Retrieve data from database and render the block.
 	data := s.newTemplateData(c)
-	data.DataDialogues = s.services.Story().BlockData(blockID)
+	data.DataDialogues = s.services.Story().CommonBlockData(blockID)
 	s.render(c, http.StatusOK, "renderB.html", data)
 }
 
@@ -183,7 +183,7 @@ func (s *server) blockEditionForm(c *gin.Context) {
 
 	// Render the form for editing with existing data.
 	data := s.newTemplateData(c)
-	data.DataDialogues = s.services.Story().BlockData(blockID)
+	data.DataDialogues = s.services.Story().CommonBlockData(blockID)
 	s.render(c, http.StatusOK, "editB.html", data)
 }
 
@@ -204,7 +204,7 @@ func (s *server) blockEdit(c *gin.Context) {
 	}
 
 	userID := s.getID(c)
-	s.services.Story().Edit("common_blocks", blockID, userID, blockForm.Title, blockForm.Content, optionsSlice)
+	s.services.Story().EditStory("common_blocks", blockID, userID, blockForm.Title, blockForm.Content, optionsSlice)
 	path := "/stories/blocks/" + strconv.Itoa(blockID)
 	c.Redirect(http.StatusFound, path)
 }
@@ -215,7 +215,7 @@ func (s *server) deleteBlock(c *gin.Context) {
 	if err != nil {
 		c.AbortWithStatus(http.StatusNotFound)
 	}
-	s.services.Story().DeleteOneBlock(blockID)
+	s.services.Story().DeleteCommonBlock(blockID)
 	c.Redirect(http.StatusFound, "/home")
 }
 
@@ -337,7 +337,7 @@ func (s *server) userAccountRender(c *gin.Context) {
 
 	//Get user ID and then other data related to the user.
 	userID := s.getID(c)
-	user, err := s.store.User().Get(userID)
+	user, err := s.store.User().FindByID(userID)
 	if err != nil {
 		if errors.Is(err, models.ErrNoRecord) {
 			c.Redirect(http.StatusFound, "/user/login")
@@ -381,7 +381,7 @@ func (s *server) passwordUpdate(c *gin.Context) {
 	userID := s.getID(c)
 
 	//Update password with new information.
-	err := s.store.User().PasswordUpdate(userID, passwordForm.CurrentPassword, passwordForm.NewPassword)
+	err := s.services.User().PasswordUpdate(userID, passwordForm.CurrentPassword, passwordForm.NewPassword)
 	if err != nil {
 		if errors.Is(err, models.ErrInvalidCredentials) {
 			passwordForm.AddFieldError("currentPassword", "Current password is incorrect")

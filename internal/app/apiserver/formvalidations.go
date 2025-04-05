@@ -9,7 +9,6 @@ func (u *userForm) validateUserForm() *userForm {
 		u.FieldErrors = make(map[string]string)
 	}
 
-	//Basic validation checks.
 	u.CheckField(validator.NotBlank(u.Nickname), "nickname", "This field cannot be blank")
 	u.CheckField(validator.NotBlank(u.Email), "email", "This field cannot be blank")
 	u.CheckField(validator.Matches(u.Email, validator.EmailRX), "email", "This field must be a valid email address")
@@ -19,7 +18,6 @@ func (u *userForm) validateUserForm() *userForm {
 }
 
 func (u *userLoginForm) validateUserForm() *userLoginForm {
-	//Basic validation checks.
 	u.CheckField(validator.NotBlank(u.Email), "email", "This field cannot be blank")
 	u.CheckField(validator.Matches(u.Email, validator.EmailRX), "email", "This field must be a valid email address")
 	u.CheckField(validator.NotBlank(u.Password), "password", "This field cannot be blank")
@@ -27,7 +25,6 @@ func (u *userLoginForm) validateUserForm() *userLoginForm {
 }
 
 func (p *accountPasswordUpdateForm) validatePasswordUpdateForm() *accountPasswordUpdateForm {
-	//Basic validations check.
 	p.CheckField(validator.NotBlank(p.CurrentPassword), "currentPassword", "This field cannot be blank")
 	p.CheckField(validator.NotBlank(p.NewPassword), "newPassword", "This field cannot be blank")
 	p.CheckField(validator.MinChars(p.NewPassword, 8), "newPassword", "This field must be at least 8 characters long")

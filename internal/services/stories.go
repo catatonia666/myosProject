@@ -13,20 +13,19 @@ type StoryStruct struct {
 }
 
 type StoryService interface {
-	Create(int, string, string, []string, bool) int
-	Get(string, int) (any, error)
-	Edit(string, int, int, string, string, []string) error
-	DeleteOneBlock(id int) error
+	CreateStory(int, string, string, []string, bool) int
+	EditStory(string, int, int, string, string, []string) error
+	DeleteCommonBlock(id int) error
 	DeleteWholeStory(id int) error
 	DisplayStories(int) ([]models.StartingBlock, error)
 	StartingBlockData(id int) (data models.DialoguesData)
-	BlockData(id int) (data models.DialoguesData)
+	CommonBlockData(id int) (data models.DialoguesData)
 }
 
 const storiesToDisplayAmount = 10
 
 // Create creates
-func (ss *StoryStruct) Create(userID int, storyTitle string, startingBlockContent string, startingBlockOptions []string, privacy bool) (storyID int) {
+func (ss *StoryStruct) CreateStory(userID int, storyTitle string, startingBlockContent string, startingBlockOptions []string, privacy bool) (storyID int) {
 	var (
 		newFirstBlock = &models.StartingBlock{
 			UserID: userID,
@@ -67,16 +66,11 @@ func (ss *StoryStruct) Create(userID int, storyTitle string, startingBlockConten
 		Content:    startingBlockContent,
 		Options:    jsonData,
 	}
-	// ss.db.Story().UpdateStory(firstBlockID, *newFirstBlock)
 	ss.db.Story().Update(firstBlockID, newFirstBlock)
 	return firstBlockID
 }
 
-func (ss *StoryStruct) Get(string, int) (any, error) {
-	return nil, nil
-}
-
-func (ss *StoryStruct) Edit(model string, id int, userID int, storyTitle string, content string, newOptions []string) error {
+func (ss *StoryStruct) EditStory(model string, id int, userID int, storyTitle string, content string, newOptions []string) error {
 	blockModelAny, err := ss.db.Story().Get(model, id)
 	if err != nil {
 		return err
@@ -115,7 +109,7 @@ func (ss *StoryStruct) Edit(model string, id int, userID int, storyTitle string,
 	return nil
 }
 
-func (ss *StoryStruct) DeleteOneBlock(id int) (err error) {
+func (ss *StoryStruct) DeleteCommonBlock(id int) (err error) {
 	var block models.CommonBlock
 	blockModelAny, err := ss.db.Story().Get("common_blocks", id)
 	if err != nil {
@@ -161,7 +155,7 @@ func (ss *StoryStruct) StartingBlockData(id int) (data models.DialoguesData) {
 	return data
 }
 
-func (ss *StoryStruct) BlockData(id int) (data models.DialoguesData) {
+func (ss *StoryStruct) CommonBlockData(id int) (data models.DialoguesData) {
 	var (
 		block   models.CommonBlock
 		options []map[int]string

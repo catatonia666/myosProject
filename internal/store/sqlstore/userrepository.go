@@ -4,7 +4,6 @@ import (
 	"dialogue/internal/models"
 	"errors"
 
-	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
@@ -12,7 +11,7 @@ type UserRepository struct {
 	store *Store
 }
 
-// Insert insets a new user into the database.
+// Create inserts a new user into the database.
 func (ur *UserRepository) Create(u *models.User) error {
 	if err := u.BeforeCreate(); err != nil {
 		return err
@@ -24,8 +23,8 @@ func (ur *UserRepository) Create(u *models.User) error {
 	return nil
 }
 
-// GetUser gets user with provided ID if exists.
-func (ur *UserRepository) Get(id int) (*models.User, error) {
+// FindByID gets user with provided ID if exists.
+func (ur *UserRepository) FindByID(id int) (*models.User, error) {
 	var user models.User
 	err := ur.store.db.Table("users").Where("id = ?", id).First(&user).Error
 	if err != nil {
@@ -38,8 +37,8 @@ func (ur *UserRepository) Get(id int) (*models.User, error) {
 	return &user, nil
 }
 
-func (ur *UserRepository) FindByEmail(email string) (*models.User, error) {
-	var user *models.User
+// FindByEmail gets user with provided email if exists.
+func (ur *UserRepository) FindByEmail(email string) (user *models.User, err error) {
 	result := ur.store.db.Where("email = ?", email).First(&user)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
@@ -52,32 +51,11 @@ func (ur *UserRepository) FindByEmail(email string) (*models.User, error) {
 	return user, nil
 }
 
-// Exists checks if user with provided ID exists in the database.
-func (ur *UserRepository) Exists(id int) (bool, error) {
-	var exists bool
-	err := ur.store.db.Table("users").Select("count(*) > 0").Where("id = ?", id).Find(&exists).Error
-	return exists, err
-}
-
 // PasswordUpdate updates user's password.
-func (ur *UserRepository) PasswordUpdate(id int, currentPassword, newPassword string) error {
-	var pw models.User
-	err := ur.store.db.Table("users").Select("hashed_password").Where("id = ?", id).Scan(&pw).Error
-	if err != nil {
-		return err
-	}
-	err = bcrypt.CompareHashAndPassword([]byte(pw.HashedPassword), []byte(currentPassword))
-	if err != nil {
-		if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
-			return models.ErrInvalidCredentials
-		} else {
-			return err
-		}
-	}
-	newHashedPassword, err := bcrypt.GenerateFromPassword([]byte(newPassword), 12)
-	if err != nil {
-		return err
-	}
+func (ur *UserRepository) PasswordUpdate(id int, newHashedPassword []byte) (err error) {
 	err = ur.store.db.Table("users").Where("id = ?", id).Update("hashed_password", &newHashedPassword).Error
-	return err
+	if err != nil {
+		return err
+	}
+	return nil
 }

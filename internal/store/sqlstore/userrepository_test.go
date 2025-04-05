@@ -26,10 +26,10 @@ func TestUserRepository_Get(t *testing.T) {
 	u := models.TestUser(t)
 	db.AutoMigrate(&u)
 
-	_, err := s.User().Get(1)
+	_, err := s.User().FindByID(1)
 	assert.Error(t, err)
 
 	s.User().Create(u)
-	_, err = s.User().Get(u.ID)
+	_, err = s.User().FindByID(u.ID)
 	assert.NoError(t, err)
 }

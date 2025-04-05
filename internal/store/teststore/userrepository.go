@@ -22,7 +22,7 @@ func (ur *UserRepository) Create(u *models.User) error {
 	return nil
 }
 
-func (ur *UserRepository) Get(id int) (*models.User, error) {
+func (ur *UserRepository) FindByID(id int) (*models.User, error) {
 
 	u, ok := ur.users[id]
 	if !ok {
@@ -46,10 +46,6 @@ func (ur *UserRepository) Authenticate(string, string) (*models.User, error) {
 	return nil, nil
 }
 
-func (ur *UserRepository) PasswordUpdate(int, string, string) error {
+func (ur *UserRepository) PasswordUpdate(int, []byte) error {
 	return nil
-}
-
-func (ur *UserRepository) Exists(int) (bool, error) {
-	return false, nil
 }

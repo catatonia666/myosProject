@@ -34,19 +34,12 @@ func (s *server) authenticateMiddleware() gin.HandlerFunc {
 		}
 
 		//Check if the user with gathered ID persists in database.
-		exists, err := s.store.User().Exists(id)
+		_, err = s.store.User().FindByID(id)
 		if err != nil {
-			s.serverError(c, err)
+			c.Set(isAuthenticatedContextKey, false)
 			return
 		}
-
-		//Set the value for the authenticated key.
-		if exists {
-			c.Set(isAuthenticatedContextKey, true)
-		} else {
-			c.Set(isAuthenticatedContextKey, false)
-		}
-		c.Next()
+		c.Set(isAuthenticatedContextKey, true)
 	}
 }
 

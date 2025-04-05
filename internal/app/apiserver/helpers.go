@@ -137,7 +137,7 @@ func deserialize(jsonStr string, target *map[string]any) {
 func (s *server) getID(c *gin.Context) int {
 	sessionID, err := c.Cookie("session_id")
 	if err != nil {
-		return 0 //If session does not exists returns nil.
+		return 0
 	}
 
 	// Get ID of a user directly from Redis.
@@ -167,7 +167,7 @@ func (s *server) parse(c *gin.Context, form any) {
 			return
 		}
 	} else {
-		if err := c.ShouldBind(form); err != nil { // Now recognizes form data!
+		if err := c.ShouldBind(form); err != nil {
 			s.errorLog.Print("Form Parse Error: ", err.Error())
 			s.serverError(c, err)
 			return
