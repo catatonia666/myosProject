@@ -156,7 +156,7 @@ func (ss *StoryStruct) StartingBlockData(id int) (data models.DialoguesData) {
 	data.StartingBlock = firstBlock
 	data.OptionsToBlocks = options
 
-	data.RelatedToStoryBlocks, _ = ss.db.Story().RetrieveBlocks(id)
+	_, _, data.RelatedToStoryBlocks, _ = ss.db.Story().WholeStory(id)
 
 	return data
 }
@@ -172,7 +172,7 @@ func (ss *StoryStruct) BlockData(id int) (data models.DialoguesData) {
 	data.CommonBlock = block
 	data.OptionsToBlocks = options
 
-	data.RelatedToStoryBlocks, _ = ss.db.Story().RetrieveBlocks(block.StoryID)
+	_, _, data.RelatedToStoryBlocks, _ = ss.db.Story().WholeStory(block.StoryID)
 
 	return data
 }
@@ -238,7 +238,7 @@ func (ss *StoryStruct) recreateOptions(blockOptions []string, retrievedOptions [
 // deleteBlock deletes block with ID and all blocks related to it if they no longer have connections to other blocks.
 func (ss *StoryStruct) deleteBlock(targetID, storyID int) (err error) {
 	var allBlocks []models.CommonBlock
-	_, allBlocks, err = ss.db.Story().WholeStory(storyID)
+	_, allBlocks, _, err = ss.db.Story().WholeStory(storyID)
 	if err != nil {
 		return err
 	}
@@ -286,7 +286,7 @@ func (ss *StoryStruct) deleteBlock(targetID, storyID int) (err error) {
 
 // clearOptions searches for the block that was deleted to appear in other blocks' options and delete them.
 func (ss *StoryStruct) clearOptions(id, storyID int) {
-	firstBlock, relatedBlocks, _ := ss.db.Story().WholeStory(storyID)
+	firstBlock, relatedBlocks, _, _ := ss.db.Story().WholeStory(storyID)
 	for _, b := range relatedBlocks {
 		var unmarshaledOpts []map[int]string
 		json.Unmarshal(b.Options, &unmarshaledOpts)

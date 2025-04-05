@@ -100,29 +100,28 @@ func (sr *StoryRepository) CreatedBlocks(blocksAmount int) (retrievedBlocks []mo
 	return retrievedBlocks, nil
 }
 
+func (sr *StoryRepository) GetAllStories() (stories []models.StartingBlock, err error) {
+	err = sr.store.db.Model(&models.StartingBlock{}).Where("privacy = false OR").Order("id desc").Scan(&stories).Error
+	if err != nil {
+		return nil, err
+	}
+	return stories, nil
+}
+
 // WholeStory collects all blocks related to the story with ID including the starting one.
-func (sr *StoryRepository) WholeStory(storyID int) (story models.StartingBlock, blocks []models.CommonBlock, err error) {
+func (sr *StoryRepository) WholeStory(storyID int) (story models.StartingBlock, blocks []models.CommonBlock, wholeStory models.RelatedToStoryBlocks, err error) {
 	err = sr.store.db.Where("id = ?", storyID).First(&story).Error
 	if err != nil {
-		return models.StartingBlock{}, nil, err
+		return models.StartingBlock{}, nil, models.RelatedToStoryBlocks{}, err
 	}
 
 	err = sr.store.db.Where("story_id = ?", storyID).Order("id").Find(&blocks).Error
 	if err != nil {
-		return models.StartingBlock{}, nil, err
+		return models.StartingBlock{}, nil, models.RelatedToStoryBlocks{}, err
 	}
 
-	return story, blocks, nil
-}
+	wholeStory.StartingBlock = story
+	wholeStory.OtherBlocks = blocks
 
-// RetrieveBlocks is a helper that converts blocks collected with WholeStory method into one struct.
-func (sr *StoryRepository) RetrieveBlocks(id int) (retrievedBlocks models.RelatedToStoryBlocks, err error) {
-	firstBlock, blocks, err := sr.WholeStory(id)
-	if err != nil {
-		return models.RelatedToStoryBlocks{}, err
-	}
-
-	retrievedBlocks.StartingBlock = firstBlock
-	retrievedBlocks.OtherBlocks = blocks
-	return retrievedBlocks, nil
+	return story, blocks, wholeStory, nil
 }

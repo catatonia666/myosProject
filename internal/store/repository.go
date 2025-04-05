@@ -19,7 +19,7 @@ type StoryRepository interface {
 
 	StoriesToDisplay(int, int) ([]models.StartingBlock, error)
 	CreatedBlocks(int) ([]models.CommonBlock, error)
-	WholeStory(int) (models.StartingBlock, []models.CommonBlock, error)
+	WholeStory(int) (models.StartingBlock, []models.CommonBlock, models.RelatedToStoryBlocks, error)
 
-	RetrieveBlocks(id int) (retrievedBlocks models.RelatedToStoryBlocks, err error)
+	GetAllStories() (stories []models.StartingBlock, err error)
 }

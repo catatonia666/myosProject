@@ -5,10 +5,6 @@ import "dialogue/internal/models"
 type StoryRepository struct {
 }
 
-func (sr *StoryRepository) RetrieveBlocks(id int) (retrievedBlocks models.RelatedToStoryBlocks, err error) {
-	return models.RelatedToStoryBlocks{}, err
-}
-
 func (sr *StoryRepository) StoriesToDisplay(int, int) ([]models.StartingBlock, error) {
 	return nil, nil
 }
@@ -17,8 +13,8 @@ func (sr *StoryRepository) Delete(any) error {
 	return nil
 }
 
-func (sr *StoryRepository) WholeStory(int) (models.StartingBlock, []models.CommonBlock, error) {
-	return models.StartingBlock{}, nil, nil
+func (sr *StoryRepository) WholeStory(int) (models.StartingBlock, []models.CommonBlock, models.RelatedToStoryBlocks, error) {
+	return models.StartingBlock{}, nil, models.RelatedToStoryBlocks{}, nil
 }
 
 func (sr *StoryRepository) CreatedBlocks(int) ([]models.CommonBlock, error) {
@@ -46,5 +42,9 @@ func (sr *StoryRepository) Update(id int, data any) error {
 }
 
 func (sr *StoryRepository) Get(model string, id int) (any, error) {
+	return nil, nil
+}
+
+func (sr *StoryRepository) GetAllStories() (stories []models.StartingBlock, err error) {
 	return nil, nil
 }

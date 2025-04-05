@@ -1,0 +1,8 @@
+basePath: /home
+host: localhost:3000
+info:
+  contact: {}
+  title: rpg-dialogue API
+  version: "0.6"
+paths: {}
+swagger: "2.0"
