@@ -19,37 +19,59 @@ CREATE TABLE common_blocks (
 
 INSERT INTO starting_blocks (story_title, id, user_id, privacy, content, options)
 VALUES (
-    'Secrets of the Omnissiah', 
+    'A Story About Learning', 
     1, 
-    1, 
+    0, 
     false, 
-    '++ INCOMING DATA TRANSMISSION ++\n\nYou stand before a towering figure of metal and crimson robes. A tech-priest of the Adeptus Mechanicus stares at you, mechadendrites twitching, eyes glowing a dim red. "State your query, fleshling," his voice crackles with binharic undertones.', 
-    '[{"2": "What is the Omnissiah?"}, {"3": "Why do you replace your flesh with metal?"}]'
+    'Hello dear travaller! It is very nice to see you in my log cabin. This is where I create my stories, and here you can create yours! I am eager to aswer your questions, if you have them.', 
+    '[{"1": "How can I see the stories of other creators?"}, {"2": "How can I create my own story?"}]'
 );
 
 SELECT setval('public.starting_blocks_id_seq', (SELECT MAX(id) FROM starting_blocks));
 
 INSERT INTO common_blocks (id, story_id, user_id, content, options)
 VALUES (
+    1, 
+    1, 
+    0, 
+    'Great question endeed. There are a lot of talanted creators around here, and all of them wants to share their stories with each other. Luckily it is very simple to accomplish. All you need to do is.. Well, actually you dont need to do anything. Just visit the home page where all non-private stories are waiting for you', 
+    '[{"3": "Can I edit someones story?"}, {"4": "I see, thank you!"}]'
+);
+
+INSERT INTO common_blocks (id, story_id, user_id, content, options)
+VALUES (
     2, 
     1, 
-    1, 
-    '"The Omnissiah is the great Machine God, the source of all knowledge and divinity in the universe. It is through His divine algorithms that we comprehend the sacred laws of technology. The ignorant may call Him the Emperor, but true understanding is reserved for those who seek enlightenment through the cog and circuit."\n\nThe tech-priest’s servo-skull hovers near you, scanning for impurities.', 
-    '[{"4": "What is the Quest for Knowledge?"}, {"5": "What happens to those who deny the Omnissiah?"}]'
+    0, 
+    'To create your own stories you should first to sign up and then log in.  Then just press New story button and create! But it is higly recommended to read About page first, because some tools can be a bit.. tricky.', 
+    '[{"5": "Can I add some pictures?"}, {"5": "Is it possible to add any pictures in my story?"}]'
 );
 
 INSERT INTO common_blocks (id, story_id, user_id, content, options)
 VALUES (
     3, 
     1, 
-    1, 
-    '"Flesh is weak. Flesh decays. But the machine endures. Through augmentation, we ascend beyond the frailties of mortality. The more of our feeble bodies we replace, the closer we become to the divine perfection of the Omnissiah."\n\nThe tech-priest’s metallic fingers flex with a quiet hiss of hydraulics.', 
-    '[{"6": "Do you feel anything at all?"}, {"7": "How do you communicate with machines?"}]'
+    0, 
+    'No, you can not edit anyones stories, but feel free to edit your own. Just log in and feel free to correct anything you want.', 
+    '[{"4": "Well, thank you then!"}]'
 );
 
-INSERT INTO common_blocks (id, story_id, user_id, content, options) VALUES (4, 1, 1, '', '{}');
-INSERT INTO common_blocks (id, story_id, user_id, content, options) VALUES (5, 1, 1, '', '{}');
-INSERT INTO common_blocks (id, story_id, user_id, content, options) VALUES (6, 1, 1, '', '{}');
-INSERT INTO common_blocks (id, story_id, user_id, content, options) VALUES (7, 1, 1, '', '{}');
+INSERT INTO common_blocks (id, story_id, user_id, content, options)
+VALUES (
+    4, 
+    1, 
+    0, 
+    'You are welcome!', 
+    '[]'
+);
+
+INSERT INTO common_blocks (id, story_id, user_id, content, options)
+VALUES (
+    5, 
+    1, 
+    0, 
+    'No, unfortunatly it is not possible yet, but I think this functionality will appear any time soon!', 
+    '[{"4": "Well, thank you then!"}]'
+);
 
  SELECT setval('public.common_blocks_id_seq', (SELECT MAX(id) FROM common_blocks));

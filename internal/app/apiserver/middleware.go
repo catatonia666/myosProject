@@ -1,6 +1,8 @@
 package apiserver
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -43,6 +45,17 @@ func (s *server) authenticateMiddleware() gin.HandlerFunc {
 			c.Set(isAuthenticatedContextKey, true)
 		} else {
 			c.Set(isAuthenticatedContextKey, false)
+		}
+		c.Next()
+	}
+}
+
+func (s *server) methodOverrideMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		if c.Request.Method == http.MethodPost {
+			if override := c.PostForm("_method"); override == http.MethodPut {
+				c.Request.Method = http.MethodPut
+			}
 		}
 		c.Next()
 	}

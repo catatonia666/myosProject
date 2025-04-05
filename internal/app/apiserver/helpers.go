@@ -8,11 +8,11 @@ import (
 	"path/filepath"
 	"runtime/debug"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/gorilla/schema"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -158,14 +158,19 @@ func (s *server) getID(c *gin.Context) int {
 
 // parse is a helper function to parse forms from the user.
 func (s *server) parse(c *gin.Context, form any) {
-	if err := c.Request.ParseForm(); err != nil {
-		s.errorLog.Print(err.Error())
-		s.serverError(c, err)
-	}
+	contentType := c.GetHeader("Content-Type")
 
-	dec := schema.NewDecoder()
-	if err := dec.Decode(form, c.Request.PostForm); err != nil {
-		s.errorLog.Print(err.Error())
-		s.serverError(c, err)
+	if strings.HasPrefix(contentType, "application/json") {
+		if err := c.ShouldBindJSON(form); err != nil {
+			s.errorLog.Print("JSON Parse Error: ", err.Error())
+			s.serverError(c, err)
+			return
+		}
+	} else {
+		if err := c.ShouldBind(form); err != nil { // Now recognizes form data!
+			s.errorLog.Print("Form Parse Error: ", err.Error())
+			s.serverError(c, err)
+			return
+		}
 	}
 }

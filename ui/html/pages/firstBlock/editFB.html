@@ -2,6 +2,7 @@
 
 {{define "main"}}
 <form class="form" method="post">
+    <input type="hidden" name="_method" value="PUT">
     <div class="container">
         <div class="content-options-field title-field">    
             <textarea name="title" id="title" placeholder="Write the title of the story">{{.DataDialogues.StartingBlock.StoryTitle}}</textarea>

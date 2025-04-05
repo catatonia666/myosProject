@@ -13,30 +13,30 @@ import (
 )
 
 type storyForm struct {
-	Title   string `schema:"title"`
-	Content string `schema:"content"`
-	Options string `schema:"options"`
-	Privacy bool   `schema:"privacy"`
+	Title   string `form:"title" json:"title"`
+	Content string `form:"content" json:"content"`
+	Options string `form:"options" json:"options"`
+	Privacy bool   `form:"privacy" json:"privacy"`
 	validator.Validator
 }
 
 type userForm struct {
-	Nickname string `schema:"nickname"`
-	Email    string `schema:"email"`
-	Password string `schema:"password"`
+	Nickname string `form:"nickname" json:"nickname"`
+	Email    string `form:"email" json:"email"`
+	Password string `form:"password" json:"password"`
 	validator.Validator
 }
 
 type userLoginForm struct {
-	Email    string `schema:"email"`
-	Password string `schema:"password"`
+	Email    string `form:"email" json:"email"`
+	Password string `form:"password" json:"password"`
 	validator.Validator
 }
 
 type accountPasswordUpdateForm struct {
-	CurrentPassword         string `schema:"currentPassword"`
-	NewPassword             string `schema:"newPassword"`
-	NewPasswordConfirmation string `schema:"newPasswordConfirmation"`
+	CurrentPassword         string `form:"currentPassword" json:"currentPassword"`
+	NewPassword             string `form:"newPassword" json:"newPassword"`
+	NewPasswordConfirmation string `form:"newPasswordConfirmation" json:"newPasswordConfirmation"`
 	validator.Validator
 }
 

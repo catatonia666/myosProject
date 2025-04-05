@@ -41,7 +41,7 @@ func newDB(databaseURL string) (*gorm.DB, error) {
 		return nil, err
 	}
 
-	db.Migrator().DropTable("starting_blocks", "common_blocks")
+	// db.Migrator().DropTable("starting_blocks", "common_blocks")
 	db.AutoMigrate(&models.StartingBlock{}, &models.CommonBlock{}, &models.User{})
 
 	return db, nil

@@ -47,7 +47,7 @@ func (s *server) configureRouter() *gin.Engine {
 
 	s.router.HandleMethodNotAllowed = true
 
-	s.router.Use(s.authenticateMiddleware())
+	s.router.Use(s.authenticateMiddleware(), s.methodOverrideMiddleware())
 
 	s.router.Static("/static", "./ui/static")
 
@@ -58,14 +58,14 @@ func (s *server) configureRouter() *gin.Engine {
 	s.router.GET("/stories/startingblocks/new", s.startingBlockForm)
 	s.router.POST("/stories/startingblocks/new", s.startingBlockCreate)
 	s.router.GET("/stories/startingblocks/:id", s.startingBlockRender)
-	s.router.POST("/stories/startingblocks/:id", s.deleteWholeStory) //delete
+	s.router.POST("/stories/startingblocks/:id", s.deleteWholeStory) //should be delete
 	s.router.GET("/stories/startingblocks/:id/edit", s.startingBlockEditionForm)
-	s.router.POST("/stories/startingblocks/:id/edit", s.startingBlockEdit) //patch
+	s.router.POST("/stories/startingblocks/:id/edit", s.startingBlockEdit) //hidden patch
 
 	s.router.GET("/stories/blocks/:id", s.blockRender)
-	s.router.POST("/stories/blocks/:id", s.deleteBlock) //delete
+	s.router.POST("/stories/blocks/:id", s.deleteBlock) //should be delete
 	s.router.GET("/stories/blocks/:id/edit", s.blockEditionForm)
-	s.router.POST("/stories/blocks/:id/edit", s.blockEdit) //patch
+	s.router.POST("/stories/blocks/:id/edit", s.blockEdit) //hidden patch
 
 	s.router.GET("/user/signup", s.userSignupForm)
 	s.router.POST("/user/signup", s.userSignup)
@@ -77,7 +77,7 @@ func (s *server) configureRouter() *gin.Engine {
 	s.router.GET("/account/view", s.userAccountRender)
 
 	s.router.GET("/account/password/update", s.passwordEditionForm)
-	s.router.POST("/account/password/update", s.passwordUpdate) //patch
+	s.router.POST("/account/password/update", s.passwordUpdate) //hidden patch
 	return s.router
 }
 
